@@ -1,11 +1,19 @@
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
 //import icon from '../../assets/icon.svg';
-import './App.css';
+//import './App.css';
+import styled from 'styled-components';
 import MainView from './Pages/MainView';
+
+const Title = styled.h1`
+  font-size: 1.5em;
+  text-align: center;
+  color: palevioletred;
+`;
 
 const Hello = () => {
   return (
     <div>
+      <Title>OIIIIIIIII</Title>
       <MainView/>
     </div>
   );
