@@ -1,9 +1,9 @@
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
-//import icon from '../../assets/icon.svg';
 import './Reset.css';
 import styled from 'styled-components';
 import MainView from './Pages/MainView';
 import Sidebar from './Components/Sidebar';
+import Header from './Components/Header';
 
 const MainContainer = styled.div`
   background-color: #EBEBEB;
@@ -12,25 +12,22 @@ const MainContainer = styled.div`
   display: flex;
 `;
 
-const CloseButton = styled.button`
-  border: none;
-  position: fixed;
-  right: 0;
-  top: 0;
-  height: 60px;
-  width: 60px;
-  outline: none;
+const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex-shrink: 1;
 `;
 
 const Main = () => {
-  const AppQuit = () => {
-    window.api.send("App.quit", {});
-  };
   return (
     <MainContainer>
-      <CloseButton onClick={AppQuit}>X</CloseButton>
       <Sidebar/>
-      <MainView/>
+      <ContentContainer>
+        <Header/>
+        <MainView/>
+      </ContentContainer>
     </MainContainer>
   );
 };
