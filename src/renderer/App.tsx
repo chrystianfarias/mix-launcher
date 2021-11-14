@@ -1,21 +1,37 @@
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
 //import icon from '../../assets/icon.svg';
-//import './App.css';
+import './Reset.css';
 import styled from 'styled-components';
 import MainView from './Pages/MainView';
+import Sidebar from './Components/Sidebar';
 
-const Title = styled.h1`
-  font-size: 1.5em;
-  text-align: center;
-  color: palevioletred;
+const MainContainer = styled.div`
+  background-color: #EBEBEB;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
 `;
 
-const Hello = () => {
+const CloseButton = styled.button`
+  border: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 60px;
+  width: 60px;
+  outline: none;
+`;
+
+const Main = () => {
+  const AppQuit = () => {
+    window.api.send("App.quit", {});
+  };
   return (
-    <div>
-      <Title>OIIIIIIIII</Title>
+    <MainContainer>
+      <CloseButton onClick={AppQuit}>X</CloseButton>
+      <Sidebar/>
       <MainView/>
-    </div>
+    </MainContainer>
   );
 };
 
@@ -23,7 +39,7 @@ export default function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/" component={Hello} />
+        <Route path="/" component={Main} />
       </Switch>
     </Router>
   );

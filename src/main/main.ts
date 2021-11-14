@@ -14,7 +14,6 @@ import path from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import {test } from './Pages/Main';
 
@@ -27,8 +26,6 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on("Main.test", test);
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -72,7 +69,9 @@ const createWindow = async () => {
     show: false,
     width: 1024,
     height: 728,
+    titleBarStyle: 'hidden',
     icon: getAssetPath('icon.png'),
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
@@ -95,9 +94,6 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
-
   // Open urls in the user's browser
   mainWindow.webContents.on('new-window', (event, url) => {
     event.preventDefault();
@@ -108,6 +104,14 @@ const createWindow = async () => {
   // eslint-disable-next-line
   new AppUpdater();
 };
+/**
+ * IPC
+ */
+
+ipcMain.on("Main.test", test);
+ipcMain.on("App.quit", () => {
+  app.quit();
+});
 
 /**
  * Add event listeners...
