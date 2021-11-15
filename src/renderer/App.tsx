@@ -9,6 +9,7 @@ import Sidebar from './Components/Sidebar';
 import Header from './Components/Header';
 import PageContext from './Context/PageContextProvider';
 import CategoryView from './Pages/CategoryView';
+import SettingsView from './Pages/SettingsView';
 
 const MainContainer = styled.div`
   background-color: #EBEBEB;
@@ -53,7 +54,9 @@ const Main = () => {
     console.log(state.category);
     switch(state.page){
       case "main":
-        return <MainView/>
+        return <MainView/>;
+      case "settings":
+        return <SettingsView/>
       default:
         return <CategoryView category={state.category}/>
     }

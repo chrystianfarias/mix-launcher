@@ -1,8 +1,9 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { BsDownload } from 'react-icons/bs';
-import Mod from 'renderer/Models/Mod';
+import Mod from 'Models/Mod';
 import LanguageContext from 'renderer/Context/LanguageContextProvider';
+import StyledRoundedButton from 'renderer/Components/RoundedButton';
 
 const StyledCategoryItem = styled.div`
   display: flex;
@@ -49,23 +50,14 @@ const StyledTexts = styled.div`
   width: 100%;
 `;
 
-const StyledButton = styled.button`
-  border: none;
-  outline: none;
-  background: none;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-
+const StyledButton = styled(StyledRoundedButton)`
   svg {
     color: #3D327B;
     width: 30px;
     height: 30px;
   }
-`
+`;
+
 interface CategoryItemViewProps {
   mod?: Mod
 }
@@ -73,6 +65,14 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
   mod
 }) => {
   const language = useContext(LanguageContext)
+  const [ progress, setProgress ] = useState(0);
+
+  const installButtonClick = () => {
+    window.api.send("ModController.installMod", mod);
+    window.api.receive("ModDownload." + mod?.languages["en_us"].name, (progress:number) => {
+      setProgress(progress);
+    });
+  };
 
   return <StyledCategoryItem>
     <StyledImage src={mod?.thumbnail}/>
@@ -83,7 +83,8 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
       </StyledDescription>
     </StyledTexts>
     <StyledButtons>
-      <StyledButton>
+      {progress}
+      <StyledButton onClick={installButtonClick}>
         <BsDownload/>
       </StyledButton>
     </StyledButtons>

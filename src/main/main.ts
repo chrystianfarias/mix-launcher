@@ -15,7 +15,7 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { resolveHtmlPath } from './util';
-import {test } from './Pages/Main';
+import ModController from './Pages/ModController';
 
 export default class AppUpdater {
   constructor() {
@@ -74,6 +74,7 @@ const createWindow = async () => {
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: true
     },
   });
 
@@ -108,10 +109,10 @@ const createWindow = async () => {
  * IPC
  */
 
-ipcMain.on("Main.test", test);
 ipcMain.on("App.quit", () => {
   app.quit();
 });
+ModController();
 
 /**
  * Add event listeners...

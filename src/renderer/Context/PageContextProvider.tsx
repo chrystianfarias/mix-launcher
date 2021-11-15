@@ -1,5 +1,5 @@
 import React, { createContext, useState } from "react";
-import Category from "renderer/Models/Category";
+import Category from "Models/Category";
 
 type PageType = {
   page: string;

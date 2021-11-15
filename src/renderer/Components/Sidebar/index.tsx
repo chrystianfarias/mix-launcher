@@ -1,16 +1,20 @@
 import { useContext, useEffect, useState } from 'react';
 import LanguageContext from 'renderer/Context/LanguageContextProvider';
-import Category from 'renderer/Models/Category';
+import Category from 'Models/Category';
 import styled from 'styled-components';
 import icon from '../../../../assets/mixmods-logo-min.png';
 import PageContext from '../../Context/PageContextProvider';
 import api from "../../Services/api";
+import StyledRoundedButton from '../RoundedButton';
+import { IoSettingsSharp } from "react-icons/io5";
 
 const StyledSidebar = styled.div`
   background: #272B35;
   min-width: 300px;
   max-width: 300px;
   user-select: none;
+  display: flex;
+  flex-direction: column;
 `;
 
 const StyledIcon = styled.img`
@@ -24,6 +28,7 @@ const Categories = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
 
   h1 {
     padding: 40px;
@@ -33,6 +38,35 @@ const Categories = styled.div`
   }
 `;
 
+const StyledFooter = styled.div`
+  display: flex;
+  align-items: center;
+
+  span {
+    color: #fff;
+    font-size: 10px;
+    opacity: .4;
+  }
+`;
+
+const StyledButton = styled(StyledRoundedButton)`
+
+  svg {
+    color: #fff;
+    width: 20px;
+    height: 20px;
+
+    opacity: .4;
+    transition: opacity ease .6s;
+  }
+
+  &:hover {
+    svg {
+      opacity: 1;
+      transition: opacity ease .2s;
+    }
+  }
+`;
 
 interface CategoryProps {
   image: string;
@@ -120,6 +154,14 @@ const Sidebar = () => {
         {category.languages[language.state].name}
       </CategoryItem>)}
     </Categories>
+    <StyledFooter>
+        <StyledButton onClick={() => setState({page: "settings"})}>
+          <IoSettingsSharp/>
+        </StyledButton>
+        <span>
+          v1.0.0
+        </span>
+    </StyledFooter>
   </StyledSidebar>
 };
 

@@ -1,9 +1,9 @@
 
 import { useEffect, useState } from 'react';
-import CategoryItem from "./Components/CategoryItem";
+import CategoryItem from "./CategoryItem";
 import styled from 'styled-components';
-import Category from "renderer/Models/Category";
-import Mod from 'renderer/Models/Mod';
+import Category from "Models/Category";
+import Mod from 'Models/Mod';
 import api from "../../Services/api";
 
 interface CategoryViewProps {
