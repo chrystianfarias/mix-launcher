@@ -4,6 +4,7 @@ import headerImage from '../../../../assets/mixmods-header-1.jpg';
 
 const StyledHeader = styled.div`
   height: 200px;
+  min-height: 200px;
   background: url(${headerImage});
   background-repeat: no-repeat;
   background-size: cover;
