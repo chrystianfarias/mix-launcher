@@ -1,7 +1,9 @@
 import React, { createContext, useState } from "react";
+import Category from "renderer/Models/Category";
 
 type PageType = {
   page: string;
+  category?: Category;
 }
 
 type PropsPageContext = {

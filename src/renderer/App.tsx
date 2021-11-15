@@ -17,6 +17,27 @@ const MainContainer = styled.div`
   display: flex;
 `;
 
+const PageContainer = styled.div`
+  overflow-y: auto;
+  scrollbar-width: auto;
+  scrollbar-color: #3D327B #EBEBEB;
+
+  /* Chrome, Edge, and Safari */
+  &::-webkit-scrollbar {
+    width: 16px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #3D327B;
+    border-radius: 10px;
+    border: 6px solid #EBEBEB;
+  }
+`;
+
 const ContentContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -26,18 +47,15 @@ const ContentContainer = styled.div`
 `;
 
 const Main = () => {
-  const {state} = useContext(PageContext)
 
   const GetPage = () => {
+    const {state} = useContext(PageContext)
+    console.log(state.category);
     switch(state.page){
-      default: case "main":
+      case "main":
         return <MainView/>
-      case "essentials":
-        return <CategoryView fullInstall={true}/>
-      case "graphics":
-        return <CategoryView fullInstall={false}/>
-      case "tcs":
-        return <CategoryView fullInstall={false}/>
+      default:
+        return <CategoryView category={state.category}/>
     }
   };
 
@@ -46,7 +64,9 @@ const Main = () => {
       <Sidebar/>
       <ContentContainer>
         <Header/>
-        {GetPage()}
+        <PageContainer>
+          {GetPage()}
+        </PageContainer>
       </ContentContainer>
     </MainContainer>
   );

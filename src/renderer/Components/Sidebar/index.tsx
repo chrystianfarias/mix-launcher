@@ -1,10 +1,10 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import LanguageContext from 'renderer/Context/LanguageContextProvider';
+import Category from 'renderer/Models/Category';
 import styled from 'styled-components';
 import icon from '../../../../assets/mixmods-logo-min.png';
-import exclamationIcon from '../../../../assets/icons/exclamation.png';
-import materialIcon from '../../../../assets/icons/material.png';
-import refreshIcon from '../../../../assets/icons/refresh.png';
 import PageContext from '../../Context/PageContextProvider';
+import api from "../../Services/api";
 
 const StyledSidebar = styled.div`
   background: #272B35;
@@ -36,7 +36,7 @@ const Categories = styled.div`
 
 interface CategoryProps {
   image: string;
-  page: string;
+  category: Category;
 }
 interface StyledCategoryProps {
   isSelected: boolean;
@@ -73,15 +73,16 @@ const StyledCategoryItem = styled.div<StyledCategoryProps>`
 const CategoryItem: React.FC<CategoryProps> = ({
   children,
   image,
-  page
+  category
 }) => {
   const {state, setState} = useContext(PageContext)
 
   const OnCategoryClick = () => {
-    setState({page: page});
+    console.log(category);
+    setState({page: category.languages["en_us"].name, category:category});
   };
 
-  return <StyledCategoryItem onClick={OnCategoryClick} isSelected={state.page==page}>
+  return <StyledCategoryItem onClick={OnCategoryClick} isSelected={state.category==category}>
     <img src={image}/>
     {children}
   </StyledCategoryItem>
@@ -89,19 +90,35 @@ const CategoryItem: React.FC<CategoryProps> = ({
 
 const Sidebar = () => {
   const {setState} = useContext(PageContext)
+  const language = useContext(LanguageContext)
+
+  let [ categories, setCategories ] = useState([] as Category[]);
+
+  const getCategory = async (url:string) => {
+    let response = await api.get(url);
+    categories = [...categories,response.data]
+    setCategories(categories);
+  }
+  useEffect(() => {
+    categories = [];
+    api
+      .get("/categories.json")
+      .then((response) => {
+        response.data.map(async (categoryUrl:string) => await getCategory(categoryUrl));
+      })
+      .catch((err) => {
+        console.error("ops! ocorreu um erro" + err);
+      });
+  }, []);
+
   return <StyledSidebar>
     <StyledIcon onClick={() => setState({page: "main"})} src={icon}/>
     <Categories>
       <h1>Categories</h1>
-      <CategoryItem page={"essentials"} image={exclamationIcon}>
-        Essentials Pack
-      </CategoryItem>
-      <CategoryItem page={"graphics"} image={materialIcon}>
-        Graphics
-      </CategoryItem>
-      <CategoryItem page={"tcs"} image={refreshIcon}>
-        TCs
-      </CategoryItem>
+      {categories.map((category:any, index:number)=>
+      <CategoryItem key={index} category={category} image={api.defaults.baseURL + "/" + category.icon}>
+        {category.languages[language.state].name}
+      </CategoryItem>)}
     </Categories>
   </StyledSidebar>
 };

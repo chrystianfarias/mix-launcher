@@ -1,4 +1,8 @@
+import { useContext } from 'react';
 import styled from 'styled-components';
+import { BsDownload } from 'react-icons/bs';
+import Mod from 'renderer/Models/Mod';
+import LanguageContext from 'renderer/Context/LanguageContextProvider';
 
 const StyledCategoryItem = styled.div`
   display: flex;
@@ -7,10 +11,11 @@ const StyledCategoryItem = styled.div`
   margin: 15px;
   margin-bottom: 0;
   border-radius: 8px;
+  align-items: center;
 `;
 
 const StyledImage = styled.img`
-  object-fit: cover;
+  object-fit: contain;
   width: 90px;
   height: 90px;
 `;
@@ -21,17 +26,67 @@ const StyledTitle = styled.h2`
   color: #3D327B;
 `;
 
+const StyledDescription = styled.span`
+  opacity: .4;
+  font-size: 14px;
+  margin-top: 15px;
+`;
+
+const StyledButtons = styled.div`
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 const StyledTexts = styled.div`
   display: flex;
   flex-direction: column;
+  margin-left: 20px;
+  margin-right: 20px;
+  width: 100%;
 `;
 
-const CategoryItem = () => {
+const StyledButton = styled.button`
+  border: none;
+  outline: none;
+  background: none;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  svg {
+    color: #3D327B;
+    width: 30px;
+    height: 30px;
+  }
+`
+interface CategoryItemViewProps {
+  mod?: Mod
+}
+const CategoryItem: React.FC<CategoryItemViewProps> = ({
+  mod
+}) => {
+  const language = useContext(LanguageContext)
+
   return <StyledCategoryItem>
-    <StyledImage src={"https://2.bp.blogspot.com/--CCgn0RdWXw/W3k46SqRK6I/AAAAAAAATCY/5sPahyGvQPciRJ4tHLSKZ8qaPnp1U49AwCK4BGAYYCw/s400/gta-sa-debug-kit-xbox.jpg"}/>
+    <StyledImage src={mod?.thumbnail}/>
     <StyledTexts>
-      <StyledTitle>A maior perda da história do modding de GTA SA</StyledTitle>
+      <StyledTitle>{mod?.languages[language.state].name}</StyledTitle>
+      <StyledDescription>
+      {mod?.languages[language.state].description}
+      </StyledDescription>
     </StyledTexts>
+    <StyledButtons>
+      <StyledButton>
+        <BsDownload/>
+      </StyledButton>
+    </StyledButtons>
   </StyledCategoryItem>
 };
 
