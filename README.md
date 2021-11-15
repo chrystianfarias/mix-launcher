@@ -1,6 +1,10 @@
+# Mix Launcher
+
+## Terminal commands
+
 Clone this repository
 
-`https://github.com/chrystianfarias/mix_launcher.git`
+`git clone https://github.com/chrystianfarias/mix_launcher.git`
 
 Open Folder
 
