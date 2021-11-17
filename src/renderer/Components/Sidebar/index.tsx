@@ -7,6 +7,8 @@ import PageContext from '../../Context/PageContextProvider';
 import api from "../../Services/api";
 import { IoSettingsSharp } from "react-icons/io5";
 import IconButton from '@material-ui/core/IconButton';
+import ButtonBase from '@material-ui/core/ButtonBase';
+import Skeleton from '@material-ui/core/Skeleton';
 
 const StyledSidebar = styled.div`
   background: #272B35;
@@ -75,13 +77,22 @@ interface CategoryProps {
 interface StyledCategoryProps {
   isSelected: boolean;
 }
+interface StyledCategoryImageProps {
+  isLoading: boolean;
+}
+
+const StyledButtonBase = styled(ButtonBase)`
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  color: #fff !important;
+`;
 
 const StyledCategoryItem = styled.div<StyledCategoryProps>`
   display: flex;
   align-items: center;
   cursor: pointer;
-  height: 31px;
-  margin-bottom: 30px;
+  height: 60px;
   width: 100%;
   color: #fff;
   transition: opacity ease .5s;
@@ -97,11 +108,26 @@ const StyledCategoryItem = styled.div<StyledCategoryProps>`
     transition: opacity ease .1s;
   }
   img {
-    width: 28px;
-    height: 28px;
-    margin-left: 30px;
-    margin-right: 20px;
   }
+`;
+const CategoryItemImage = styled.div<StyledCategoryImageProps>`
+  width: 28px;
+  height: 28px;
+  margin-left: 30px;
+  margin-right: 20px;
+  display: ${props => props.isLoading?"none":"block"};
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
+`;
+const LoadingCategoryItem = styled.div`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  height: 60px;
+  width: 100%;
 `;
 
 const CategoryItem: React.FC<CategoryProps> = ({
@@ -110,16 +136,22 @@ const CategoryItem: React.FC<CategoryProps> = ({
   category
 }) => {
   const {state, setState} = useContext(PageContext)
+  const [loading, setLoading] = useState(true);
 
   const OnCategoryClick = () => {
     console.log(category);
     setState({page: category.languages["en_us"].name, category:category});
   };
 
-  return <StyledCategoryItem onClick={OnCategoryClick} isSelected={state.category==category}>
-    <img src={image}/>
-    {children}
-  </StyledCategoryItem>
+  return <StyledButtonBase onClick={OnCategoryClick}>
+    <StyledCategoryItem isSelected={state.category==category}>
+      <CategoryItemImage isLoading={loading}>
+        {loading?<Skeleton variant="circular" width={28} height={28} />:<></>}
+        <img src={image} key={image} onLoad={()=>setLoading(false)}/>
+      </CategoryItemImage>
+      {children}
+    </StyledCategoryItem>
+  </StyledButtonBase>
 };
 
 const Sidebar = () => {
@@ -145,14 +177,27 @@ const Sidebar = () => {
       });
   }, []);
 
+  const renderCategories = () => {
+    return categories.map((category:any, index:number)=>
+      <CategoryItem key={index} category={category} image={api.defaults.baseURL + "/" + category.icon}>
+        {category.languages[language.state].name}
+      </CategoryItem>);
+  }
+  const renderLoadingCategories = () => {
+    return [...Array(4)].map(()=>
+    <LoadingCategoryItem>
+      <CategoryItemImage isLoading={true}>
+        <Skeleton variant="circular" width={28} height={28} />
+      </CategoryItemImage>
+      <Skeleton variant="text" />
+    </LoadingCategoryItem>);
+  }
+
   return <StyledSidebar>
     <StyledIcon onClick={() => setState({page: "main"})} src={icon}/>
     <Categories>
       <h1>Categories</h1>
-      {categories.map((category:any, index:number)=>
-      <CategoryItem key={index} category={category} image={api.defaults.baseURL + "/" + category.icon}>
-        {category.languages[language.state].name}
-      </CategoryItem>)}
+      {categories.length == 0?renderLoadingCategories():renderCategories()}
     </Categories>
     <StyledFooter>
         <StyledButton onClick={() => setState({page: "settings"})}>
