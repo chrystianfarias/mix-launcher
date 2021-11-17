@@ -6,21 +6,13 @@ const Store = require('electron-store');
 const ModController = () => {
   const store = new Store();
 
-  const getMPMFolder = (event:any,_: any) => {
-    event.sender.send("ModController.receiveMPMFolder", store.get("mpm_dir"));
-  }
-  const setMPMFolder = async (event:any,_: any) => {
-    let dir = await dialog.showOpenDialog({ properties: ['openFile'] });
-    store.set("mpm_dir", dir.filePaths[0]);
-    event.sender.send("ModController.receiveMPMFolder", store.get("mpm_dir"));
-  }
   const getGameFolder = (event:any,_: any) => {
-    event.sender.send("ModController.receiveGameFolder", store.get("game_dir"));
+    event.sender.send("ModController.receiveFolder", store.get("game_dir"));
   }
   const setGameFolder = async (event:any,_: any) => {
     let dir = await dialog.showOpenDialog({ properties: ['openDirectory'] });
     store.set("game_dir", dir.filePaths[0]);
-    event.sender.send("ModController.receiveGameFolder", store.get("game_dir"));
+    event.sender.send("ModController.receiveFolder", store.get("game_dir"));
   }
   const installMod = (event:any,data: any) => {
     let mod:Mod = data;
@@ -71,17 +63,18 @@ const ModController = () => {
 
     mpm.on('error', (error:any) => {
         console.log(`error: ${error.message}`);
+        event.sender.send("ModDownload." + mod?.name, {status: "Error", progress: 0, message: "Erro fatal"});
     });
 
     mpm.on("close", (code:number) => {
         console.log(`child process exited with code ${code}`);
+        if (code != 0)
+          event.sender.send("ModDownload." + mod?.name, {status: "Error", progress: 0, message: "Erro fatal"});
     });
   }
   ipcMain.on("ModController.installMod", installMod);
-  ipcMain.on("ModController.getGameFolder", getGameFolder);
-  ipcMain.on("ModController.setGameFolder", setGameFolder);
-  ipcMain.on("ModController.getMPMFolder", getMPMFolder);
-  ipcMain.on("ModController.setMPMFolder", setMPMFolder);
+  ipcMain.on("ModController.getFolder", getGameFolder);
+  ipcMain.on("ModController.setFolder", setGameFolder);
 }
 
 export default ModController;

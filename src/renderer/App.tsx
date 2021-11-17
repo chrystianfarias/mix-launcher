@@ -19,6 +19,9 @@ const MainContainer = styled.div`
 `;
 
 const PageContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100%;
   overflow-y: auto;
   scrollbar-width: auto;
   scrollbar-color: #3D327B #EBEBEB;

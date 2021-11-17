@@ -1,10 +1,7 @@
 
-import { useEffect, useState } from 'react';
 import CategoryItem from "./CategoryItem";
 import styled from 'styled-components';
 import Category from "Models/Category";
-import Mod from 'Models/Mod';
-import api from "../../Services/api";
 
 interface CategoryViewProps {
   category?: Category
@@ -22,23 +19,8 @@ const StyledCategoryView = styled.div`
 const CategoryView: React.FC<CategoryViewProps> = ({
   category
 }) => {
-    let [ mods, setMods ] = useState([] as Mod[]);
-
-    const getMod = async (url:string) => {
-      let response = await api.get(url);
-      let mod = response.data;
-      mod.name = url;
-      mods = [...mods,mod]
-      setMods(mods);
-    }
-    useEffect(() => {
-      setMods([]);
-      mods = [];
-      category?.mods.map(async (mod) => await getMod(mod));
-    }, [category]);
-
     return <StyledCategoryView>
-      {mods.map((mod:Mod, index:number) => <CategoryItem key={index} mod={mod}/>)}
+      {category?.mods.map((mod:string, index:number) => <CategoryItem key={index} modId={mod}/>)}
     </StyledCategoryView>
 };
 

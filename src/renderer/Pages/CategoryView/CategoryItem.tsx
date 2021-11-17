@@ -1,10 +1,16 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { BsDownload, BsCheck } from 'react-icons/bs';
 import { BiErrorCircle } from 'react-icons/bi';
-import Mod from 'Models/Mod';
+import api from "../../Services/api";
 import LanguageContext from 'renderer/Context/LanguageContextProvider';
 import StyledRoundedButton from 'renderer/Components/RoundedButton';
+import Mod from 'Models/Mod';
+import Skeleton from '@material-ui/core/Skeleton';
+
+interface ImageProp {
+  isLoading: boolean;
+}
 
 const StyledCategoryItem = styled.div`
   display: flex;
@@ -16,10 +22,16 @@ const StyledCategoryItem = styled.div`
   align-items: center;
 `;
 
-const StyledImage = styled.img`
-  object-fit: contain;
+const StyledImage = styled.div`
   width: 90px;
   height: 90px;
+  min-width: 90px;
+`;
+const StyledThumbnail = styled.img<ImageProp>`
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  display: ${(props => props.isLoading ? "block" : "none")};
 `;
 
 const StyledTitle = styled.h2`
@@ -58,15 +70,27 @@ const StyledButton = styled(StyledRoundedButton)`
     height: 30px;
   }
 `;
-
 interface CategoryItemViewProps {
-  mod?: Mod
+  modId: string
 }
 const CategoryItem: React.FC<CategoryItemViewProps> = ({
-  mod
+  modId
 }) => {
   const language = useContext(LanguageContext)
+  const [ mod, setMod ] = useState<Mod>()
   const [ progress, setProgress ] = useState({status: "pending", progress:0, message:""});
+  const [ imgLoaded, setImgLoaded ] = useState(false);
+
+  const getMod = async () => {
+    let response = await api.get(modId);
+    let mod = response.data;
+    mod.name = modId;
+    setMod(response.data);
+  };
+
+  useEffect(() => {
+    getMod();
+  }, []);
 
   const installButtonClick = () => {
     window.api.send("ModController.installMod", mod);
@@ -93,8 +117,16 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
     return <></>;
   }
 
-  return <StyledCategoryItem>
-    <StyledImage src={mod?.thumbnail}/>
+  const onLoadImage = () => {
+    setImgLoaded(true);
+  }
+
+  const renderMod = () => {
+    return <StyledCategoryItem>
+    <StyledImage>
+      <StyledThumbnail isLoading={imgLoaded} key={mod?.thumbnail} src={mod?.thumbnail} onLoad={onLoadImage}/>
+      {imgLoaded?<></>:<Skeleton animation="wave" variant="rectangular" width={90} height={90} />}
+    </StyledImage>
     <StyledTexts>
       <StyledTitle>{mod?.languages[language.state].name}</StyledTitle>
       <StyledDescription>
@@ -105,7 +137,28 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
       {renderStatus(progress.status)}
 
     </StyledButtons>
-  </StyledCategoryItem>
+  </StyledCategoryItem>;
+  }
+
+  const renderLoader = () => {
+    return <StyledCategoryItem>
+      <StyledImage>
+        <Skeleton animation="wave" variant="rectangular" width={90} height={90} />
+      </StyledImage>
+      <StyledTexts>
+        <StyledTitle>
+          <Skeleton animation="wave" variant="text"/>
+        </StyledTitle>
+        <StyledDescription>
+          <Skeleton animation="wave" variant="rectangular" width={250} height={40} />
+        </StyledDescription>
+      </StyledTexts>
+      <StyledButtons>
+      </StyledButtons>
+    </StyledCategoryItem>
+  };
+
+  return mod ? renderMod() : renderLoader();
 };
 
 export default CategoryItem;

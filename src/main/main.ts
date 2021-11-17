@@ -16,6 +16,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import { resolveHtmlPath } from './util';
 import ModController from './Pages/ModController';
+import MPMController from './Pages/MPMController';
 
 export default class AppUpdater {
   constructor() {
@@ -113,6 +114,7 @@ ipcMain.on("App.quit", () => {
   app.quit();
 });
 ModController();
+MPMController();
 
 /**
  * Add event listeners...
