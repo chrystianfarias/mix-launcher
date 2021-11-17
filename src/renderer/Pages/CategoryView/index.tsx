@@ -26,7 +26,9 @@ const CategoryView: React.FC<CategoryViewProps> = ({
 
     const getMod = async (url:string) => {
       let response = await api.get(url);
-      mods = [...mods,response.data]
+      let mod = response.data;
+      mod.name = url;
+      mods = [...mods,mod]
       setMods(mods);
     }
     useEffect(() => {

@@ -51,7 +51,6 @@ const Main = () => {
 
   const GetPage = () => {
     const {state} = useContext(PageContext)
-    console.log(state.category);
     switch(state.page){
       case "main":
         return <MainView/>;

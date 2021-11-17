@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import styled from 'styled-components';
-import { BsDownload } from 'react-icons/bs';
+import { BsDownload, BsCheck } from 'react-icons/bs';
+import { BiErrorCircle } from 'react-icons/bi';
 import Mod from 'Models/Mod';
 import LanguageContext from 'renderer/Context/LanguageContextProvider';
 import StyledRoundedButton from 'renderer/Components/RoundedButton';
@@ -65,14 +66,32 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
   mod
 }) => {
   const language = useContext(LanguageContext)
-  const [ progress, setProgress ] = useState(0);
+  const [ progress, setProgress ] = useState({status: "pending", progress:0, message:""});
 
   const installButtonClick = () => {
     window.api.send("ModController.installMod", mod);
-    window.api.receive("ModDownload." + mod?.languages["en_us"].name, (progress:number) => {
+    window.api.receive("ModDownload." + mod?.name, (progress:any) => {
       setProgress(progress);
     });
   };
+
+  const renderStatus = (status:string) =>
+  {
+    switch (status)
+    {
+      case "pending":
+        return <StyledButton onClick={installButtonClick}>
+                 <BsDownload/>
+               </StyledButton>;
+      case "Download":
+        return <span>{progress.progress}%</span>;
+      case "Error":
+        return <BiErrorCircle color="#e74c3c" size={30}/>;
+      case "Complete":
+        return <BsCheck color="#2ecc71" size={30}/>;
+    }
+    return <></>;
+  }
 
   return <StyledCategoryItem>
     <StyledImage src={mod?.thumbnail}/>
@@ -83,10 +102,8 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
       </StyledDescription>
     </StyledTexts>
     <StyledButtons>
-      {progress}
-      <StyledButton onClick={installButtonClick}>
-        <BsDownload/>
-      </StyledButton>
+      {renderStatus(progress.status)}
+
     </StyledButtons>
   </StyledCategoryItem>
 };

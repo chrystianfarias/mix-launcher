@@ -1,47 +1,87 @@
 import Mod from "../../Models/Mod";
 import { ipcMain } from 'electron';
-var request = require('request');
-var fs = require('fs');
-
-function downloadFile(file_url:any , targetPath:any, onProgress:any){
-  // Save variable to know progress
-  var received_bytes = 0;
-  var total_bytes = 0;
-
-  var req = request({
-      method: 'GET',
-      uri: file_url
-  });
-
-  var out = fs.createWriteStream(targetPath);
-  req.pipe(out);
-
-  req.on('response', function ( data:any ) {
-      // Change the total bytes value to get progress later.
-      total_bytes = parseInt(data.headers['content-length' ]);
-  });
-
-  req.on('data', function(chunk:any) {
-      // Update the received bytes
-      received_bytes += chunk.length;
-
-      onProgress(total_bytes/received_bytes);
-  });
-
-  req.on('end', function() {
-      onProgress(100);
-  });
-}
+const { dialog } = require('electron')
+const Store = require('electron-store');
 
 const ModController = () => {
+  const store = new Store();
+
+  const getMPMFolder = (event:any,_: any) => {
+    event.sender.send("ModController.receiveMPMFolder", store.get("mpm_dir"));
+  }
+  const setMPMFolder = async (event:any,_: any) => {
+    let dir = await dialog.showOpenDialog({ properties: ['openFile'] });
+    store.set("mpm_dir", dir.filePaths[0]);
+    event.sender.send("ModController.receiveMPMFolder", store.get("mpm_dir"));
+  }
+  const getGameFolder = (event:any,_: any) => {
+    event.sender.send("ModController.receiveGameFolder", store.get("game_dir"));
+  }
+  const setGameFolder = async (event:any,_: any) => {
+    let dir = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+    store.set("game_dir", dir.filePaths[0]);
+    event.sender.send("ModController.receiveGameFolder", store.get("game_dir"));
+  }
   const installMod = (event:any,data: any) => {
     let mod:Mod = data;
 
-    downloadFile("https://lh3.googleusercontent.com/-dN8JIrRF-6E/YZGDw4JHAiI/AAAAAAAAc5Y/vONDyM0uE20wd0FdAqBu9tmNdEPyb9AlwCLcBGAsYHQ/w495-h279/gta-trilogy-definitive-edition-mod-improved-rain-fix.jpg", "C:/test/t.zip", (progress:number) => {
-      event.sender.send("ModDownload." + mod?.languages["en_us"].name, progress);
+    const spawn = require("child_process").spawn;
+
+    const mpm = spawn(store.get("mpm_dir"),
+    ["install", mod.name, "-gui"],{
+      cwd: store.get("game_dir")
+    });
+
+    mpm.stdout.on("data", (mpmData:string) => {
+        let data = mpmData.toString();
+        let status = "...";
+        let message = "";
+        let progress = 0;
+
+        if (data.includes("download#"))
+        {
+          status = "Download";
+          progress = Number(data.split('#')[1]);
+        }
+        if (data.includes("extract#"))
+        {
+          status = "Extracting";
+        }
+        if (data.includes("install#"))
+        {
+          status = "Installing";
+        }
+        if (data.includes("error#"))
+        {
+          status = "Error";
+          message = data.split('#')[1];
+        }
+        if (data.includes("complete"))
+        {
+          status = "Complete";
+        }
+        if (status != "...")
+          event.sender.send("ModDownload." + mod?.name, {status, progress, message});
+        console.log(`stdout: ${mpmData}`);
+    });
+
+    mpm.stderr.on("data", (mpmData:string) => {
+        console.log(`stderr: ${mpmData}`);
+    });
+
+    mpm.on('error', (error:any) => {
+        console.log(`error: ${error.message}`);
+    });
+
+    mpm.on("close", (code:number) => {
+        console.log(`child process exited with code ${code}`);
     });
   }
   ipcMain.on("ModController.installMod", installMod);
+  ipcMain.on("ModController.getGameFolder", getGameFolder);
+  ipcMain.on("ModController.setGameFolder", setGameFolder);
+  ipcMain.on("ModController.getMPMFolder", getMPMFolder);
+  ipcMain.on("ModController.setMPMFolder", setMPMFolder);
 }
 
 export default ModController;

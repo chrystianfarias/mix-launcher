@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import icon from '../../../../assets/mixmods-logo-min.png';
 import PageContext from '../../Context/PageContextProvider';
 import api from "../../Services/api";
-import StyledRoundedButton from '../RoundedButton';
 import { IoSettingsSharp } from "react-icons/io5";
+import IconButton from '@material-ui/core/IconButton';
 
 const StyledSidebar = styled.div`
   background: #272B35;
@@ -49,7 +49,7 @@ const StyledFooter = styled.div`
   }
 `;
 
-const StyledButton = styled(StyledRoundedButton)`
+const StyledButton = styled(IconButton)`
 
   svg {
     color: #fff;
