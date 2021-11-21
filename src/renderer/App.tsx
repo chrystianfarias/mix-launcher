@@ -17,7 +17,7 @@ const theme = createTheme({
 });
 
 const Main = () => {
-  let first = true;
+  let first = false;
   return first ? <WizzardPage/> : <MainPage/>;
 };
 

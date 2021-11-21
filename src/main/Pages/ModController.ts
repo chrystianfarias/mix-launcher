@@ -14,6 +14,28 @@ const ModController = () => {
     store.set("game_dir", dir.filePaths[0]);
     event.sender.send("ModController.receiveFolder", store.get("game_dir"));
   }
+  const getMods = (event:any,_: any) => {
+    console.log("getMods");
+    const spawn = require("child_process").spawnSync;
+
+    const mpm = spawn(store.get("mpm_dir"),
+    ["get-mods", "-modloader"],{
+      cwd: store.get("game_dir")
+    });
+    let outp = mpm.stdout.toString();
+    if (outp.includes("mod#"))
+    {
+      const modsList = [] as any[];
+      const mods = outp.split('\n');
+      mods.map((mod:string) => {
+        const split = mod.split('#');
+        modsList.push({"name": split[1], "type": split[2]});
+      });
+      event.sender.send("ModController.receiveModList", modsList);
+      console.log("sendMods");
+    }
+  }
+
   const installMod = (event:any,data: any) => {
     let mod:Mod = data;
 
@@ -75,6 +97,7 @@ const ModController = () => {
   ipcMain.on("ModController.installMod", installMod);
   ipcMain.on("ModController.getFolder", getGameFolder);
   ipcMain.on("ModController.setFolder", setGameFolder);
+  ipcMain.on("ModController.getMods", getMods);
 }
 
 export default ModController;

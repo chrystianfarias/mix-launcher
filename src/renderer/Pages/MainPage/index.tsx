@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import styled from 'styled-components';
 import MainView from '../../Pages/MainView';
+import ModsView from '../../Pages/ModsView';
 import Sidebar from '../../Components/Sidebar';
 import Header from '../../Components/Header';
 import PageContext from '../../Context/PageContextProvider';
@@ -53,6 +54,8 @@ const MainPage = () => {
     switch(state.page){
       case "main":
         return <MainView/>;
+      case "mods":
+        return <ModsView/>;
       case "settings":
         return <SettingsView/>
       default:

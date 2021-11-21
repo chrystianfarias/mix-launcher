@@ -194,7 +194,7 @@ const Sidebar = () => {
   }
 
   return <StyledSidebar>
-    <StyledIcon onClick={() => setState({page: "main"})} src={icon}/>
+    <StyledIcon onClick={() => setState({page: "mods"})} src={icon}/>
     <Categories>
       <h1>Categories</h1>
       {categories.length == 0?renderLoadingCategories():renderCategories()}
