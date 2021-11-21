@@ -1,8 +1,16 @@
 import styled from 'styled-components';
 import { IoIosClose } from 'react-icons/io';
 import headerImage from '../../../../assets/mixmods-header-1.jpg';
+import Title from '../Title';
+
+const StyledTitle = styled(Title)`
+  font-size: 60px;
+`;
 
 const StyledHeader = styled.div`
+  padding: 30px;
+  display:flex;
+  box-sizing: border-box;
   height: 200px;
   min-height: 200px;
   background: url(${headerImage});
@@ -44,7 +52,9 @@ const Header = () => {
     window.api.send("App.quit", {});
   };
   return <StyledHeader>
-
+      <StyledTitle>
+        MixLauncher
+      </StyledTitle>
       <CloseButton onClick={AppQuit}>
         <IoIosClose/>
       </CloseButton>

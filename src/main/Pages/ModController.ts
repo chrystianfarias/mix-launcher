@@ -14,6 +14,29 @@ const ModController = () => {
     store.set("game_dir", dir.filePaths[0]);
     event.sender.send("ModController.receiveFolder", store.get("game_dir"));
   }
+  const modIgnore = (_:any, data:any) => {
+    const mod:string = data.mod;
+    const ignore:boolean = data.ignore;
+
+    console.log("modignore");
+    const spawn = require("child_process").spawn;
+    const base64 = new Buffer(JSON.stringify(mod)).toString("base64");
+    spawn(store.get("mpm_dir"),
+    ["mod", base64, ignore?"-ignore":"-notignore"],{
+      cwd: store.get("game_dir")
+    });
+  }
+  const reorderList = (_:any,data: any) => {
+    const json:any = data;
+    console.log("reorder");
+    const spawn = require("child_process").spawn;
+    const base64 = new Buffer(JSON.stringify(json)).toString("base64");
+    spawn(store.get("mpm_dir"),
+    ["reorder", base64],{
+      cwd: store.get("game_dir")
+    });
+  };
+
   const getMods = (event:any,_: any) => {
     console.log("getMods");
     const spawn = require("child_process").spawnSync;
@@ -34,6 +57,11 @@ const ModController = () => {
       event.sender.send("ModController.receiveModList", modsList);
       console.log("sendMods");
     }
+  }
+  const openModFolder = (_:any, data:any) => {
+    const path:string = data;
+    const spawn = require("child_process").spawn;
+    spawn("explorer", [store.get("game_dir") + "\\modloader\\" + path]);
   }
 
   const installMod = (event:any,data: any) => {
@@ -98,6 +126,9 @@ const ModController = () => {
   ipcMain.on("ModController.getFolder", getGameFolder);
   ipcMain.on("ModController.setFolder", setGameFolder);
   ipcMain.on("ModController.getMods", getMods);
+  ipcMain.on("ModController.openModFolder", openModFolder);
+  ipcMain.on("ModController.reorderList", reorderList);
+  ipcMain.on("ModController.setIgnore", modIgnore);
 }
 
 export default ModController;
