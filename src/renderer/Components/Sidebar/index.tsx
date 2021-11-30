@@ -10,6 +10,18 @@ import IconButton from '@material-ui/core/IconButton';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Skeleton from '@material-ui/core/Skeleton';
 
+
+interface CategoryProps {
+  image: string;
+  category: Category;
+}
+interface StyledCategoryProps {
+  isSelected: boolean;
+}
+interface StyledCategoryImageProps {
+  isLoading: boolean;
+}
+
 const StyledSidebar = styled.div`
   background: #272B35;
   min-width: 300px;
@@ -69,18 +81,6 @@ const StyledButton = styled(IconButton)`
     }
   }
 `;
-
-interface CategoryProps {
-  image: string;
-  category: Category;
-}
-interface StyledCategoryProps {
-  isSelected: boolean;
-}
-interface StyledCategoryImageProps {
-  isLoading: boolean;
-}
-
 const StyledButtonBase = styled(ButtonBase)`
   display: flex;
   align-items: center;

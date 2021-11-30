@@ -69,6 +69,7 @@
       ]
     },
     "win": {
+      "requestedExecutionLevel": "requireAdministrator",
       "target": [
         "nsis"
       ]
@@ -85,6 +86,13 @@
       "output": "release/build"
     },
     "extraResources": [
+      {
+        "from": "./src/extraResources/",
+        "to": "extraResources",
+        "filter": [
+          "**/*"
+        ]
+      },
       "./assets/**"
     ],
     "publish": {
@@ -252,9 +260,11 @@
     "react-router-dom": "^5.3.0",
     "react-sortable-hoc": "^2.0.0",
     "react-spinners": "^0.11.0",
+    "regedit": "^5.0.0",
     "regenerator-runtime": "^0.13.9",
     "request": "^2.88.2",
-    "styled-components": "^5.3.3"
+    "styled-components": "^5.3.3",
+    "sudo-prompt": "^9.2.1"
   },
   "devEngines": {
     "node": ">=14.x",
