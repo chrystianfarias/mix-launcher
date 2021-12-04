@@ -96,6 +96,7 @@ const LoadingBox = () => {
   let currentPhrase = 0;
 
   useEffect(() => {
+    setPhrase(messages[currentPhrase]);
     window.setInterval(() => {
       currentPhrase += 1;
       if (currentPhrase == messages.length)
@@ -184,8 +185,13 @@ const SettingsBox = () => {
 }
 
 const WizzardPage = () => {
-  //const [ isLoading, setLoading ] = useState(false);
-  const isLoading = false;
+  const [ isLoading, setLoading ] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+  },[]);
 
   return (
     <ThemeProvider theme={theme}>

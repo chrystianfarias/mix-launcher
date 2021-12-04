@@ -140,11 +140,11 @@ const CategoryItem: React.FC<CategoryProps> = ({
 
   const OnCategoryClick = () => {
     console.log(category);
-    setState({page: category.languages["en_us"].name, category:category});
+    setState({page: category.languages["en_us"].name, arg:category});
   };
 
   return <StyledButtonBase onClick={OnCategoryClick}>
-    <StyledCategoryItem isSelected={state.category==category}>
+    <StyledCategoryItem isSelected={state.arg==category}>
       <CategoryItemImage isLoading={loading}>
         {loading?<Skeleton variant="circular" width={28} height={28} />:<></>}
         <img src={image} key={image} onLoad={()=>setLoading(false)}/>
@@ -194,7 +194,7 @@ const Sidebar = () => {
   }
 
   return <StyledSidebar>
-    <StyledIcon onClick={() => setState({page: "mods"})} src={icon}/>
+    <StyledIcon onClick={() => setState({page: "main"})} src={icon}/>
     <Categories>
       <h1>Categories</h1>
       {categories.length == 0?renderLoadingCategories():renderCategories()}

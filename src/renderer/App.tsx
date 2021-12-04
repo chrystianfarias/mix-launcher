@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { MemoryRouter as Router, Switch, Route } from 'react-router-dom';
 import './Reset.css';
 import './Roboto.css';
@@ -17,7 +18,16 @@ const theme = createTheme({
 });
 
 const Main = () => {
-  let first = false;
+  const [mpmDir, setMPMDir] = useState(undefined);
+  useEffect(() => {
+    window.api.send("MPMController.getFolder", {});
+    window.api.receive("MPMController.receiveFolder", (folder:any) => {
+      setTimeout(() => {
+        setMPMDir(folder);
+      }, 2000);
+    });
+  }, []);
+  let first = mpmDir == undefined;
   return first ? <WizzardPage/> : <MainPage/>;
 };
 

@@ -3,13 +3,15 @@ import { ipcMain } from 'electron';
 const { dialog } = require('electron')
 const regedit = require('regedit')
 const key = 'HKCU\\SOFTWARE\\MIXMODS';
+const gtaKey = 'HKCU\\SOFTWARE\\Rockstar Games\\InstallGUID';
+regedit.setExternalVBSLocation('resources/regedit/vbs');
 
 const ModController = () => {
   let gameDir:string;
   let mpmDir:string;
 
   const refreshPaths = () => {
-    regedit.list(key, function(_:any, result:any) {
+    regedit.list([key, gtaKey], function(_:any, result:any) {
       if (result[key].exists == false)
       {
         regedit.createKey([key], function(err:any) {
@@ -20,9 +22,9 @@ const ModController = () => {
       {
         mpmDir = result[key].values["mpm_dir"].value;
       }
-      if ("game_dir" in result[key].values)
+      if ("gtasa" in result[gtaKey].values)
       {
-        gameDir = result[key].values["game_dir"].value;
+        gameDir = result[gtaKey].values["gtasa"].value;
       }
     })
   }

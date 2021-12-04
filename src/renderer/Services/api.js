@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://beta.mixmods.com.br/launcher",
+  baseURL: "https://raw.githubusercontent.com/chrystianfarias/mpm/main",
 });
 
 export default api;

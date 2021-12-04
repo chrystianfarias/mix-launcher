@@ -59,7 +59,7 @@ const MainPage = () => {
       case "settings":
         return <SettingsView/>
       default:
-        return <CategoryView category={state.category}/>
+        return <CategoryView category={state.arg}/>
     }
   };
   return (
