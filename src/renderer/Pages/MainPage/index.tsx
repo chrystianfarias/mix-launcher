@@ -8,6 +8,7 @@ import PageContext from '../../Context/PageContextProvider';
 import CategoryView from '../../Pages/CategoryView';
 import SettingsView from '../../Pages/SettingsView';
 import InstallView from '../../Pages/InstallView';
+import CheckView from '../../Pages/CheckView';
 
 const MainContainer = styled.div`
   background-color: #EBEBEB;
@@ -64,6 +65,8 @@ const MainPage = () => {
   const GetPage = () => {
     const {state} = useContext(PageContext)
     switch(state.page){
+      case "check":
+        return <CheckView/>;
       case "install":
         return <InstallView/>;
       case "main":

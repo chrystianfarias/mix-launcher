@@ -110,7 +110,9 @@ const createWindow = async () => {
 /**
  * IPC
  */
-
+ipcMain.on("App.link", (_:any,link:any) => {
+  shell.openExternal(link);
+});
 ipcMain.on("App.quit", () => {
   app.quit();
 });
