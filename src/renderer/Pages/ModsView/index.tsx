@@ -7,6 +7,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Switch, { SwitchProps } from '@material-ui/core/Switch';
 import { styled as muiStyled } from '@material-ui/core/styles';
 import { AiFillFolderOpen } from 'react-icons/ai';
+import Skeleton from '@material-ui/core/Skeleton';
 
 interface mod {
   name:string;
@@ -14,6 +15,7 @@ interface mod {
 };
 
 const StyledList = styled.ul`
+  max-height: 100%;
   width: 100%;
 `;
 
@@ -138,7 +140,22 @@ const SortableList = SortableContainer(({mods}:{mods: mod[]}) =>
       ))}
     </StyledList>
 );
-
+const EmptyList = () => {
+  return <StyledList>
+    {[...Array(10)].map(()=>
+    <StyledItem>
+    <DragHandle/>
+      <StyledTexts>
+        <StyledTitle>
+          <Skeleton animation="wave" variant="text"/>
+        </StyledTitle>
+        <StyledDescription>
+          <Skeleton animation="wave" variant="rectangular" width={250} height={40} />
+        </StyledDescription>
+      </StyledTexts>
+    </StyledItem>)}
+  </StyledList>;
+}
 const ModsView = () => {
   const [mods, setMods] = useState([] as mod[]);
   useEffect(() => {
@@ -152,7 +169,7 @@ const ModsView = () => {
     window.api.send("ModController.reorderList", newArray.map(mod => mod.name));
     setMods(newArray);
   };
-  return <SortableList mods={mods} onSortEnd={onSortEnd} lockAxis="y" useDragHandle/>
+  return mods.length == 0 ? <EmptyList/> : <SortableList mods={mods} onSortEnd={onSortEnd} lockAxis="y" useDragHandle/>
 };
 
 export default ModsView;

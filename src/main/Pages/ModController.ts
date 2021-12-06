@@ -10,30 +10,35 @@ const ModController = () => {
   let gameDir:string;
   let mpmDir:string;
 
-  const refreshPaths = () => {
-    regedit.list([key, gtaKey], function(_:any, result:any) {
-      if (result[key].exists == false)
-      {
-        regedit.createKey([key], function(err:any) {
-          console.error(err);
-        })
-      }
-      if ("mpm_dir" in result[key].values)
-      {
-        mpmDir = result[key].values["mpm_dir"].value;
-      }
-      if ("gtasa" in result[gtaKey].values)
-      {
-        gameDir = result[gtaKey].values["gtasa"].value;
-      }
+  const refreshPaths = async () => {
+    await new Promise((resolve, reject) => {
+      regedit.list([key, gtaKey], function(_:any, result:any) {
+        if (result[key].exists == false)
+        {
+          regedit.createKey([key], function(err:any) {
+            console.error(err);
+            reject();
+          })
+        }
+        if ("mpm_dir" in result[key].values)
+        {
+          mpmDir = result[key].values["mpm_dir"].value;
+        }
+        if ("gtasa" in result[gtaKey].values)
+        {
+          gameDir = result[gtaKey].values["gtasa"].value;
+        }
+        resolve(gameDir);
+      })
     })
+
   }
-  const getGameFolder = (event:any,_: any) => {
-    refreshPaths();
+  const getGameFolder = async (event:any,_: any) => {
+    await refreshPaths();
     event.sender.send("ModController.receiveFolder", gameDir);
   }
   const setGameFolder = async (event:any,_: any) => {
-    refreshPaths();
+    await refreshPaths();
     let dir = await dialog.showOpenDialog({ properties: ['openDirectory'] });
     regedit.putValue({[key]: {
       'game_dir': {
@@ -45,8 +50,8 @@ const ModController = () => {
     });
     getGameFolder(event, null);
   }
-  const modIgnore = (_:any, data:any) => {
-    refreshPaths();
+  const modIgnore = async(_:any, data:any) => {
+    await refreshPaths();
     const mod:string = data.mod;
     const ignore:boolean = data.ignore;
 
@@ -58,8 +63,31 @@ const ModController = () => {
       cwd: gameDir
     });
   }
-  const reorderList = (_:any,data: any) => {
-    refreshPaths();
+  const checkMod = async (event:any,data:Mod) => {
+    await refreshPaths();
+    const spawn = require("child_process").spawn;
+    const mpm = spawn(mpmDir,
+    ["check-package", data.package + "@" + data.version, "-gui"],{
+      cwd: gameDir
+    });
+
+    mpm.stdout.on("data", (mpmData:string) => {
+      const res = mpmData.toString();
+      event.sender.send("ModController.receiveCheckMod." + data.package, res.includes("package#true"));
+    });
+
+    mpm.on('error', (error:any) => {
+        console.error(`MPM ${error.message}`);
+        event.sender.send("ModDownload." + data, {status: "Error", progress: 0, message: "Erro fatal"});
+    });
+
+    mpm.on("close", (code:number) => {
+        if (code != 0)
+          event.sender.send("ModDownload." + data, {status: "Error", progress: 0, message: "Erro fatal"});
+    });
+  };
+  const reorderList = async (_:any,data: any) => {
+    await refreshPaths();
     const json:any = data;
     console.log("reorder");
     const spawn = require("child_process").spawn;
@@ -70,8 +98,8 @@ const ModController = () => {
     });
   };
 
-  const getMods = (event:any,_: any) => {
-    refreshPaths();
+  const getMods = async(event:any,_: any) => {
+    await refreshPaths();
     console.log("getMods");
     const spawn = require("child_process").spawnSync;
 
@@ -92,23 +120,25 @@ const ModController = () => {
       console.log("sendMods");
     }
   }
-  const openModFolder = (_:any, data:any) => {
-    refreshPaths();
+  const openModFolder = async(_:any, data:any) => {
+    await refreshPaths();
     const path:string = data;
     const spawn = require("child_process").spawn;
-    spawn("explorer", [gameDir + "\\modloader\\" + path]);
+    spawn("explorer", [`"${gameDir}` + "\\modloader\\" + path + '"']);
   }
 
-  const installMod = (event:any,data: any) => {
-    refreshPaths();
-    let mod:Mod = data;
+  const installMod = async(event:any,mod:Mod) => {
+    await refreshPaths();
 
     const spawn = require("child_process").spawn;
 
+    console.log(gameDir);
+
     const mpm = spawn(mpmDir,
-    ["install", mod.name, "-gui"],{
+    ["install", mod.package + "@" + mod.version, "-gui"],{
       cwd: gameDir
     });
+
 
     mpm.stdout.on("data", (mpmData:string) => {
         let data = mpmData.toString();
@@ -139,8 +169,7 @@ const ModController = () => {
           status = "Complete";
         }
         if (status != "...")
-          event.sender.send("ModDownload." + mod?.name, {status, progress, message});
-        console.log(`stdout: ${mpmData}`);
+          event.sender.send("ModDownload." + mod?.package, {status, progress, message});
     });
 
     mpm.stderr.on("data", (mpmData:string) => {
@@ -148,20 +177,21 @@ const ModController = () => {
     });
 
     mpm.on('error', (error:any) => {
-        console.log(`error: ${error.message}`);
-        event.sender.send("ModDownload." + mod?.name, {status: "Error", progress: 0, message: "Erro fatal"});
+        console.error(`MPM ${error.message}`);
+        event.sender.send("ModDownload." + mod?.package, {status: "Error", progress: 0, message: "Erro fatal"});
     });
 
     mpm.on("close", (code:number) => {
         console.log(`child process exited with code ${code}`);
         if (code != 0)
-          event.sender.send("ModDownload." + mod?.name, {status: "Error", progress: 0, message: "Erro fatal"});
+          event.sender.send("ModDownload." + mod?.package, {status: "Error", progress: 0, message: "Erro fatal"});
     });
   }
   ipcMain.on("ModController.installMod", installMod);
   ipcMain.on("ModController.getFolder", getGameFolder);
   ipcMain.on("ModController.setFolder", setGameFolder);
   ipcMain.on("ModController.getMods", getMods);
+  ipcMain.on("ModController.checkMod", checkMod);
   ipcMain.on("ModController.openModFolder", openModFolder);
   ipcMain.on("ModController.reorderList", reorderList);
   ipcMain.on("ModController.setIgnore", modIgnore);

@@ -2,7 +2,7 @@ import React, { createContext, useState } from "react";
 
 type PageType = {
   page: string;
-  arg?: any;
+  arg: any;
 }
 
 type PropsPageContext = {
@@ -12,7 +12,8 @@ type PropsPageContext = {
 
 const DEFAULT_VALUE = {
   state: {
-    page: "main"
+    page: "main",
+    arg: "main"
   },
   setState: () => {}
 }

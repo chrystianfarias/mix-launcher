@@ -7,13 +7,24 @@ import Header from '../../Components/Header';
 import PageContext from '../../Context/PageContextProvider';
 import CategoryView from '../../Pages/CategoryView';
 import SettingsView from '../../Pages/SettingsView';
+import InstallView from '../../Pages/InstallView';
 
 const MainContainer = styled.div`
   background-color: #EBEBEB;
   width: 100vw;
   height: 100vh;
   display: flex;
+  overflow: hidden;
 `;
+
+const DragArea = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 50px;
+  -webkit-app-region: drag;
+`
 
 const PageContainer = styled.div`
   display: flex;
@@ -45,6 +56,7 @@ const ContentContainer = styled.div`
   width: 100%;
   height: 100%;
   flex-shrink: 1;
+  overflow: hidden;
 `;
 
 const MainPage = () => {
@@ -52,6 +64,8 @@ const MainPage = () => {
   const GetPage = () => {
     const {state} = useContext(PageContext)
     switch(state.page){
+      case "install":
+        return <InstallView/>;
       case "main":
         return <MainView/>;
       case "mods":
@@ -64,6 +78,7 @@ const MainPage = () => {
   };
   return (
     <MainContainer>
+      <DragArea/>
       <Sidebar/>
       <ContentContainer>
         <Header/>

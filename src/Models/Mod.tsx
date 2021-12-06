@@ -1,5 +1,5 @@
 interface Mod {
-  name: string,
+  package: string,
   languages: {
     [Key: string]: {
       name: string,

@@ -17,6 +17,7 @@ import log from 'electron-log';
 import { resolveHtmlPath } from './util';
 import ModController from './Pages/ModController';
 import MPMController from './Pages/MPMController';
+import GameController from './Pages/GameController';
 
 export default class AppUpdater {
   constructor() {
@@ -115,6 +116,7 @@ ipcMain.on("App.quit", () => {
 });
 ModController();
 MPMController();
+GameController();
 
 /**
  * Add event listeners...

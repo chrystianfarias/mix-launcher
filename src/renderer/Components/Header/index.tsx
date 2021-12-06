@@ -2,10 +2,22 @@ import styled from 'styled-components';
 import { IoIosClose } from 'react-icons/io';
 import headerImage from '../../../../assets/mixmods-header-1.jpg';
 import Title from '../Title';
+import Button from '@material-ui/core/Button';
+import { BsFillPlayFill } from 'react-icons/bs';
 
 const StyledTitle = styled(Title)`
   font-size: 60px;
+  -webkit-user-select: none;
+  user-select: none;
 `;
+
+const StyledButtons = styled.div`
+  height: 100%;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
 
 const StyledHeader = styled.div`
   padding: 30px;
@@ -17,9 +29,6 @@ const StyledHeader = styled.div`
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-app-region: drag;
 `;
 
 const CloseButton = styled.button`
@@ -51,10 +60,19 @@ const Header = () => {
   const AppQuit = () => {
     window.api.send("App.quit", {});
   };
+  const openGame = () => {
+    window.api.send("GameController.openGame", {});
+  };
   return <StyledHeader>
       <StyledTitle>
         MixLauncher
       </StyledTitle>
+      <StyledButtons>
+        <Button onClick={openGame} color="success" variant="contained">
+          Iniciar
+          <BsFillPlayFill/>
+        </Button>
+      </StyledButtons>
       <CloseButton onClick={AppQuit}>
         <IoIosClose/>
       </CloseButton>

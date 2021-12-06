@@ -7,6 +7,7 @@ import LanguageContext from 'renderer/Context/LanguageContextProvider';
 import StyledRoundedButton from 'renderer/Components/RoundedButton';
 import Mod from 'Models/Mod';
 import Skeleton from '@material-ui/core/Skeleton';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 interface ImageProp {
   isLoading: boolean;
@@ -78,41 +79,69 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
 }) => {
   const language = useContext(LanguageContext)
   const [ mod, setMod ] = useState<Mod>()
-  const [ progress, setProgress ] = useState({status: "pending", progress:0, message:""});
+  const [ status, setStatus ] = useState({status: "Pending", progress:0, message:""});
   const [ imgLoaded, setImgLoaded ] = useState(false);
 
   const getMod = async () => {
-    let response = await api.get(modId);
-    let mod = response.data;
-    mod.name = modId;
-    setMod(response.data);
+    try
+    {
+      let response = await api.get(`mods\\${modId}.json`);
+      let mod:Mod = response.data;
+      mod.package = modId.split('@')[0];
+      setMod(mod);
+    }
+    catch(ex)
+    {
+      console.error(ex);
+    }
   };
 
   useEffect(() => {
     getMod();
   }, []);
 
+  useEffect(() => {
+    if (mod)
+    {
+      window.api.send("ModController.checkMod", mod);
+      window.api.receive("ModController.receiveCheckMod." + mod.package, (installed:boolean) => {
+        if (installed)
+        {
+          setStatus({status:"Complete", progress:0, message:"Package installed"});
+        }
+        else
+        {
+          setStatus({status:"Install", progress:0, message:"Package not installed"});
+        }
+      });
+    }
+  }, [mod]);
+
   const installButtonClick = () => {
+    setStatus({status:"Pending", progress:0, message:"Package installed"});
     window.api.send("ModController.installMod", mod);
-    window.api.receive("ModDownload." + mod?.name, (progress:any) => {
-      setProgress(progress);
+    window.api.receive("ModDownload." + mod?.package, (status:any) => {
+      setStatus(status);
     });
   };
 
-  const renderStatus = (status:string) =>
+  const renderStatus = (res:any) =>
   {
-    switch (status)
+    switch (res.status)
     {
-      case "pending":
+      case "Install":
         return <StyledButton onClick={installButtonClick}>
                  <BsDownload/>
                </StyledButton>;
       case "Download":
-        return <span>{progress.progress}%</span>;
+        return <span>{res.progress}%</span>;
       case "Error":
         return <BiErrorCircle color="#e74c3c" size={30}/>;
       case "Complete":
         return <BsCheck color="#2ecc71" size={30}/>;
+      default:
+      case "Pending":
+        return <CircularProgress size={20}/>;
     }
     return <></>;
   }
@@ -134,7 +163,7 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
       </StyledDescription>
     </StyledTexts>
     <StyledButtons>
-      {renderStatus(progress.status)}
+      {renderStatus(status)}
 
     </StyledButtons>
   </StyledCategoryItem>;
