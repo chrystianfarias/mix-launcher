@@ -1,11 +1,12 @@
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
-import {SortableContainer, SortableElement, SortableHandle} from 'react-sortable-hoc';
+import {SortableContainer, SortableElement} from 'react-sortable-hoc';
+//SortableHandle
 import {arrayMoveImmutable} from 'array-move';
 import {MdDragHandle} from 'react-icons/md';
 import IconButton from '@material-ui/core/IconButton';
-import Switch, { SwitchProps } from '@material-ui/core/Switch';
-import { styled as muiStyled } from '@material-ui/core/styles';
+//import Switch, { SwitchProps } from '@material-ui/core/Switch';
+//import { styled as muiStyled } from '@material-ui/core/styles';
 import { AiFillFolderOpen } from 'react-icons/ai';
 import Skeleton from '@material-ui/core/Skeleton';
 
@@ -53,9 +54,12 @@ const StyledTexts = styled.div`
   width: 100%;
 `;
 const StyledButtons = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   min-width: 100px;
 `;
-const IOSSwitch = muiStyled((props: SwitchProps) => (
+/*const IOSSwitch = muiStyled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
   width: 42,
@@ -106,21 +110,22 @@ const IOSSwitch = muiStyled((props: SwitchProps) => (
   },
 }));
 const DragHandle = SortableHandle(() => <StyledDragIcon/>);
-
+*/
 const SortableItem = SortableElement(({mod}:{mod: mod}) => {
-  const [active, setActive] = useState(true);
+  /*const [active, setActive] = useState(true);
 
   const onCheck = () => {
     setActive(!active);
     window.api.send("ModController.setIgnore", {mod: mod.name, ignore: active});
-  }
+  }*/
   const openFolder = () => {
     window.api.send("ModController.openModFolder", mod.name);
   }
-
+/*
+      <DragHandle/>
+  <IOSSwitch checked={active} onChange={onCheck}/>*/
   return (
     <StyledItem>
-      <DragHandle/>
       <StyledTexts>
         <StyledTitle>{mod.name}</StyledTitle>
         <StyledDescription>{mod.type}</StyledDescription>
@@ -129,7 +134,6 @@ const SortableItem = SortableElement(({mod}:{mod: mod}) => {
         <IconButton onClick={openFolder}>
           <AiFillFolderOpen/>
         </IconButton>
-        <IOSSwitch checked={active} onChange={onCheck}/>
       </StyledButtons>
     </StyledItem>)});
 
@@ -140,11 +144,12 @@ const SortableList = SortableContainer(({mods}:{mods: mod[]}) =>
       ))}
     </StyledList>
 );
+/*
+    <DragHandle/>*/
 const EmptyList = () => {
   return <StyledList>
     {[...Array(10)].map(()=>
     <StyledItem>
-    <DragHandle/>
       <StyledTexts>
         <StyledTitle>
           <Skeleton animation="wave" variant="text"/>

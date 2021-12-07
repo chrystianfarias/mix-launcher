@@ -18,17 +18,20 @@ const theme = createTheme({
 });
 
 const Main = () => {
-  const [mpmDir, setMPMDir] = useState(undefined);
-  useEffect(() => {
+  const [mpmDir, setMPMDir] = useState("...");
+  const check = () => {
     window.api.send("MPMController.getFolder", {});
+  }
+  useEffect(() => {
+    check();
     window.api.receive("MPMController.receiveFolder", (folder:any) => {
       setTimeout(() => {
         setMPMDir(folder);
       }, 2000);
     });
   }, []);
-  let first = mpmDir == undefined;
-  return first ? <WizzardPage/> : <MainPage/>;
+  let first = mpmDir == "...";
+  return first ? <WizzardPage onSelect={() => setMPMDir("")}/> : <MainPage/>;
 };
 
 export default function App() {

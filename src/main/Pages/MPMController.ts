@@ -4,6 +4,8 @@ const key = 'HKCU\\SOFTWARE\\MIXMODS';
 
 const https = require('https');
 const unzipper = require('unzipper');
+const path = require('path');
+const fs = require('fs');
 
 const regedit = require('regedit')
 regedit.setExternalVBSLocation('resources/regedit/vbs');
@@ -25,7 +27,7 @@ const MPMController = () => {
         }
         else
         {
-          event.sender.send("MPMController.receiveFolder", undefined);
+          event.sender.send("MPMController.receiveFolder", "...");
         }
       })
   }
@@ -47,22 +49,29 @@ const MPMController = () => {
         'user-agent': 'Mix Launcher',
       }
     }
-    const dir = `${app.getAppPath()}\\mpm`;
+    const dir = path.join(app.getAppPath(), '..\\', '\\mpm');
+    if (!fs.existsSync(dir)){
+      fs.mkdirSync(dir);
+    }
     https.get('https://raw.githubusercontent.com/chrystianfarias/mpm/main/mpm.zip', options,async (res:any) => {
-      res.pipe(unzipper.Extract({path: dir}));
+      try{
+        res.pipe(unzipper.Extract({path: dir}));
 
-      regedit.putValue({[key]: {
-        'mpm_dir': {
-          value: `${dir}\\mpm.exe`,
-          type: 'REG_SZ'
-        }
-      }}, function(err:any) {
-        console.error(err);
-      });
-      getMPMFolder(event, null);
+        regedit.putValue({[key]: {
+          'mpm_dir': {
+            value: `${dir}\\mpm.exe`,
+            type: 'REG_SZ'
+          }
+        }}, function(err:any) {
+          console.error(err);
+        });
 
-      await new Promise(f => setTimeout(f, 2000));
-      event.sender.send("MPMController.receiveInstall", "complete");
+        await new Promise(f => setTimeout(f, 2000));
+        event.sender.send("MPMController.receiveInstall", "complete");
+        getMPMFolder(event, null);
+      }catch{
+        dialog.showMessageBox({message: "Error installing MPM, please try again later or manually.", title:"Erro", type:"error"})
+      }
     })
   }
   ipcMain.on("MPMController.getFolder", getMPMFolder);

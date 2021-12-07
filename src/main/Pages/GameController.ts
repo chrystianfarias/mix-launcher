@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { dialog, ipcMain } from 'electron';
 const regedit = require('regedit')
 const gtaKey = 'HKCU\\SOFTWARE\\Rockstar Games\\InstallGUID';
 const key = 'HKCU\\SOFTWARE\\MIXMODS';
@@ -74,6 +74,7 @@ const GameController = () => {
     mpm.on('error', (error:any) => {
         console.error(`MPM ${error.message}`);
         event.sender.send("GameController.Error", "Erro fatal");
+        dialog.showMessageBox({message: error.message, title:"Erro", type:"error"})
     });
 
     mpm.on("close", (code:number) => {

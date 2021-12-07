@@ -4,6 +4,7 @@ const { dialog } = require('electron')
 const regedit = require('regedit')
 const key = 'HKCU\\SOFTWARE\\MIXMODS';
 const gtaKey = 'HKCU\\SOFTWARE\\Rockstar Games\\InstallGUID';
+const fs = require('fs');
 regedit.setExternalVBSLocation('resources/regedit/vbs');
 
 const ModController = () => {
@@ -27,6 +28,8 @@ const ModController = () => {
         if ("gtasa" in result[gtaKey].values)
         {
           gameDir = result[gtaKey].values["gtasa"].value;
+          if (!fs.existsSync(gameDir + "\\gta_sa.exe"))
+            dialog.showMessageBox({message: "Invalid game directory, please select the directory that has the 'gta_sa.exe' executable", title:"Erro", type:"error"})
         }
         resolve(gameDir);
       })
@@ -40,8 +43,8 @@ const ModController = () => {
   const setGameFolder = async (event:any,_: any) => {
     await refreshPaths();
     let dir = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-    regedit.putValue({[key]: {
-      'game_dir': {
+    regedit.putValue({[gtaKey]: {
+      'gtasa': {
         value: dir.filePaths[0],
         type: 'REG_SZ'
       }
@@ -124,7 +127,8 @@ const ModController = () => {
     await refreshPaths();
     const path:string = data;
     const spawn = require("child_process").spawn;
-    spawn("explorer", [`"${gameDir}` + "\\modloader\\" + path + '"']);
+    spawn("explorer", [`${gameDir}` + "\\modloader\\" + path]);
+    console.log("explorer", [`"${gameDir}` + "\\modloader\\" + path + '"']);
   }
 
   const installMod = async(event:any,mod:Mod) => {
@@ -179,12 +183,25 @@ const ModController = () => {
     mpm.on('error', (error:any) => {
         console.error(`MPM ${error.message}`);
         event.sender.send("ModDownload." + mod?.package, {status: "Error", progress: 0, message: "Erro fatal"});
+        dialog.showMessageBox({message: error.message, title:"Erro", type:"error"})
     });
 
     mpm.on("close", (code:number) => {
         console.log(`child process exited with code ${code}`);
         if (code != 0)
           event.sender.send("ModDownload." + mod?.package, {status: "Error", progress: 0, message: "Erro fatal"});
+    });
+  }
+  const init = async() => {
+    await refreshPaths();
+    const spawn = require("child_process").spawn;
+    const mpm = spawn(mpmDir,
+    ["init"],{
+      cwd: gameDir
+    });
+
+    mpm.on('error', () => {
+      dialog.showMessageBox({message: "Your MixPackageManager is having problems, the application will not work correctly. Please consider reinstalling MPM.", title:"Erro", type:"error"})
     });
   }
   ipcMain.on("ModController.installMod", installMod);
@@ -195,6 +212,7 @@ const ModController = () => {
   ipcMain.on("ModController.openModFolder", openModFolder);
   ipcMain.on("ModController.reorderList", reorderList);
   ipcMain.on("ModController.setIgnore", modIgnore);
+  init();
 }
 
 export default ModController;

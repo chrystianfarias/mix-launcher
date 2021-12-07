@@ -7,6 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import { AiFillFolderOpen, AiOutlineCloudDownload } from 'react-icons/ai';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
 
 const theme = createTheme({
   palette: {
@@ -26,6 +27,9 @@ const StyledTextField = styled(TextField)`
     color: "#fff";
   }
 `;
+interface WizzardProps {
+  onSelect:any;
+}
 
 const MainContainer = styled.div`
   background: url(${backgroundImage});
@@ -110,7 +114,9 @@ const LoadingBox = () => {
         </MessageContainer>;
 }
 
-const SettingsBox = () => {
+const SettingsBox: React.FC<WizzardProps> = ({
+  onSelect
+}) => {
   const [gameDir, setGameDir] = useState("/");
   const [mpmDir, setMPMDir] = useState("/");
   const [mpmInstall, setMPMInstall] = useState(false);
@@ -181,10 +187,15 @@ const SettingsBox = () => {
         </IconButton>}
       </Buttons>
     </Row>
+    <Row>
+      <Button  variant="contained" onClick={onSelect}>Iniciar</Button>
+    </Row>
     </MessageContainer>
 }
 
-const WizzardPage = () => {
+const WizzardPage: React.FC<WizzardProps> = ({
+  onSelect
+}) => {
   const [ isLoading, setLoading ] = useState(true);
 
   useEffect(() => {
@@ -197,8 +208,8 @@ const WizzardPage = () => {
     <ThemeProvider theme={theme}>
       <MainContainer>
         <SideContainer>
-          <Title>MixLauncher<span>v1.0.0</span></Title>
-          {isLoading ? <LoadingBox/> : <SettingsBox/>}
+          <Title>MixLauncher<span>v1.0.0a</span></Title>
+          {isLoading ? <LoadingBox/> : <SettingsBox onSelect={onSelect}/>}
         </SideContainer>
       </MainContainer>
     </ThemeProvider>
