@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, app } = require('electron');
 const { dialog, BrowserWindow } = require("electron");
 
 
@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld(
           // Deliberately strip event as it includes `sender`
           ipcRenderer.on(channel, (event, ...args) => func(...args));
           //}
-      }
+      },
+      getVersion: () => app.getVersion()
   }
 );

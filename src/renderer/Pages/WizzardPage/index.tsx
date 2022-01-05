@@ -208,7 +208,7 @@ const WizzardPage: React.FC<WizzardProps> = ({
     <ThemeProvider theme={theme}>
       <MainContainer>
         <SideContainer>
-          <Title>MixLauncher<span>v1.0.0a</span></Title>
+          <Title>MixLauncher<span>v1.0.1a</span></Title>
           {isLoading ? <LoadingBox/> : <SettingsBox onSelect={onSelect}/>}
         </SideContainer>
       </MainContainer>

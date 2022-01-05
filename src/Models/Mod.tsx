@@ -9,6 +9,7 @@ interface Mod {
   version: string,
   thumbnail: string,
   url: string,
+  post: string,
   incompatible_mods: string[]
   dependency_mods: string[]
 }

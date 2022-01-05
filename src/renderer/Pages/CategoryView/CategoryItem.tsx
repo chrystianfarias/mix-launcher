@@ -1,13 +1,14 @@
 import { useContext, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { BsDownload, BsCheck } from 'react-icons/bs';
-import { BiErrorCircle } from 'react-icons/bi';
+import { BiErrorCircle, BiInfoCircle } from 'react-icons/bi';
 import api from "../../Services/api";
 import LanguageContext from 'renderer/Context/LanguageContextProvider';
 import StyledRoundedButton from 'renderer/Components/RoundedButton';
 import Mod from 'Models/Mod';
 import Skeleton from '@material-ui/core/Skeleton';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import InstallModal from '../InstallModal';
 
 interface ImageProp {
   isLoading: boolean;
@@ -81,6 +82,7 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
   const [ mod, setMod ] = useState<Mod>()
   const [ status, setStatus ] = useState({status: "Pending", progress:0, message:""});
   const [ imgLoaded, setImgLoaded ] = useState(false);
+  const [ modal, setModal ] = useState(false);
 
   const getMod = async () => {
     try
@@ -124,6 +126,9 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
       setStatus(status);
     });
   };
+  const infoButtonClick = () => {
+    setModal(true);
+  };
 
   const renderStatus = (res:any) =>
   {
@@ -163,8 +168,10 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
       </StyledDescription>
     </StyledTexts>
     <StyledButtons>
+      <StyledButton onClick={infoButtonClick}>
+        <BiInfoCircle/>
+      </StyledButton>
       {renderStatus(status)}
-
     </StyledButtons>
   </StyledCategoryItem>;
   }
@@ -187,7 +194,10 @@ const CategoryItem: React.FC<CategoryItemViewProps> = ({
     </StyledCategoryItem>
   };
 
-  return mod ? renderMod() : renderLoader();
+  return <>
+          {mod ? renderMod() : renderLoader()}
+          {modal ? <InstallModal mod={mod!} onClose={() => setModal(false)}/> : <></>}
+        </>;
 };
 
 export default CategoryItem;

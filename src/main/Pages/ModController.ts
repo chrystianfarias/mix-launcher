@@ -21,6 +21,13 @@ const ModController = () => {
             reject();
           })
         }
+        if (result[gtaKey].exists == false)
+        {
+          regedit.createKey([gtaKey], function(err:any) {
+            console.error(err);
+            reject();
+          })
+        }
         if ("mpm_dir" in result[key].values)
         {
           mpmDir = result[key].values["mpm_dir"].value;
@@ -116,6 +123,8 @@ const ModController = () => {
       const modsList = [] as any[];
       const mods = outp.split('\n');
       mods.map((mod:string) => {
+        if (!mod.includes('#'))
+          return;
         const split = mod.split('#');
         modsList.push({"name": split[1], "type": split[2]});
       });
@@ -149,7 +158,7 @@ const ModController = () => {
         let status = "...";
         let message = "";
         let progress = 0;
-
+        console.log(data);
         if (data.includes("download#"))
         {
           status = "Download";

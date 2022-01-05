@@ -7,7 +7,6 @@ import Header from '../../Components/Header';
 import PageContext from '../../Context/PageContextProvider';
 import CategoryView from '../../Pages/CategoryView';
 import SettingsView from '../../Pages/SettingsView';
-import InstallView from '../../Pages/InstallView';
 import CheckView from '../../Pages/CheckView';
 
 const MainContainer = styled.div`
@@ -67,8 +66,6 @@ const MainPage = () => {
     switch(state.page){
       case "check":
         return <CheckView/>;
-      case "install":
-        return <InstallView/>;
       case "main":
         return <MainView/>;
       case "mods":
