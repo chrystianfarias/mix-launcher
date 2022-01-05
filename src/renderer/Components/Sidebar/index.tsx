@@ -128,7 +128,7 @@ const Sidebar = () => {
           <IoSettingsSharp/>
         </StyledButton>
         <span>
-          v1.0.1a
+          v1.0.2a
         </span>
     </StyledFooter>
   </StyledSidebar>

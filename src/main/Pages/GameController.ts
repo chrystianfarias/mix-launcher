@@ -7,6 +7,7 @@ regedit.setExternalVBSLocation('resources/regedit/vbs');
 const GameController = () => {
   let gameDir:string;
   let mpmDir:string;
+  let gtaInstance:any;
 
   const refreshPaths = async () => {
     await new Promise((resolve, reject) => {
@@ -31,15 +32,20 @@ const GameController = () => {
     })
 
   }
-  const openGame = async (__:any,_: any) => {
+  const openGame = async (event:any,_: any) => {
     await refreshPaths();
-    //event.sender.send("ModController.receiveFolder", gameDir);
     const spawn = require("child_process").spawn;
-    let gta = spawn(gameDir + "/gta_sa.exe",[],{});
+    gtaInstance = spawn(gameDir + "/gta_sa.exe",[],{});
 
-    gta.on("close", (code:number) => {
-        console.log(code)
+    gtaInstance.on("close", (code:number) => {
+      event.sender.send("GameController.onCloseGame", code);
     });
+  }
+  const closeGame = async (_:any,__: any) => {
+    if (gtaInstance != null)
+    {
+      gtaInstance.kill();
+    }
   }
   const checkGame = async (event:any,_:any) => {
     await refreshPaths();
@@ -86,6 +92,7 @@ const GameController = () => {
   };
 
   ipcMain.on("GameController.openGame", openGame);
+  ipcMain.on("GameController.closeGame", closeGame);
   ipcMain.on("GameController.checkGame", checkGame);
 }
 

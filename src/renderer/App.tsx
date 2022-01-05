@@ -18,20 +18,19 @@ const theme = createTheme({
 });
 
 const Main = () => {
-  const [mpmDir, setMPMDir] = useState("...");
+  const [folderChecked, setFolderChecked] = useState(false);
   const check = () => {
-    window.api.send("MPMController.getFolder", {});
+    window.api.send("ModController.checkFolder", {});
   }
   useEffect(() => {
     check();
-    window.api.receive("MPMController.receiveFolder", (folder:any) => {
+    window.api.receive("ModController.receiveCheckFolder", (check:boolean) => {
       setTimeout(() => {
-        setMPMDir(folder);
+        setFolderChecked(check);
       }, 2000);
     });
   }, []);
-  let first = mpmDir == "...";
-  return first ? <WizzardPage onSelect={() => setMPMDir("")}/> : <MainPage/>;
+  return !folderChecked ? <WizzardPage onSelect={check}/> : <MainPage/>;
 };
 
 export default function App() {

@@ -163,9 +163,11 @@ const EmptyList = () => {
 }
 const ModsView = () => {
   const [mods, setMods] = useState([] as mod[]);
+  const [checking, setChecking] = useState(true);
   useEffect(() => {
       window.api.send("ModController.getMods", {});
       window.api.receive("ModController.receiveModList", (modList:any) => {
+        setChecking(false);
         setMods(modList);
       });
   }, []);
@@ -174,7 +176,22 @@ const ModsView = () => {
     window.api.send("ModController.reorderList", newArray.map(mod => mod.name));
     setMods(newArray);
   };
-  return mods.length == 0 ? <EmptyList/> : <SortableList mods={mods} onSortEnd={onSortEnd} lockAxis="y" useDragHandle/>
+  return checking ? <EmptyList/>
+    : mods.length == 0
+    ?
+    <StyledList>
+      <StyledItem>
+        <StyledTexts>
+          <StyledTitle>
+            Nenhum mod instalado
+          </StyledTitle>
+          <StyledDescription>
+          nem pelo Launcher, nem manualmente. Lembrando que verificamos a 'modloader'
+          </StyledDescription>
+        </StyledTexts>
+      </StyledItem>
+    </StyledList>
+    : <SortableList mods={mods} onSortEnd={onSortEnd} lockAxis="y" useDragHandle/>
 };
 
 export default ModsView;

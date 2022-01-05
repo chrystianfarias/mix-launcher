@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useState, useEffect } from 'react';
 import Skeleton from '@material-ui/core/Skeleton';
 import { BiError, BiLinkExternal } from 'react-icons/bi';
-import { AiOutlineCloseCircle } from 'react-icons/ai';
+import { AiOutlineCloseCircle, AiOutlineCheckCircle } from 'react-icons/ai';
 
 interface ItemProps {
   error:any;
@@ -123,17 +123,30 @@ const LoadingItem = () => {
 
 const CheckView = () => {
   const [errors, setErrors] = useState([] as any[]);
+  const [checking, setChecking] = useState(true);
   useEffect(() => {
       window.api.send("GameController.checkGame", {});
       window.api.receive("GameController.receiveCheckGame", (errors:any[]) => {
         setErrors(errors);
+        setChecking(false);
       });
   }, []);
 
   return <StyledContainer>
-      {errors.length > 0
+      {checking ? [...Array(4)].map(() => <LoadingItem/>)
+        :errors.length > 0
         ?errors.map(error => <Item error={error}/> )
-        :[...Array(4)].map(() => <LoadingItem/>) }
+        :<StyledItem>
+          <AiOutlineCheckCircle color="#2ecc71" size={40}/>
+          <StyledTexts>
+            <StyledTitle>
+              Tudo certo com seu jogo!
+            </StyledTitle>
+            <StyledDescription>
+              Verificamos todos os arquivos do jogo, parece estar tudo ok.
+            </StyledDescription>
+          </StyledTexts>
+        </StyledItem> }
     </StyledContainer>;
 }
 export default CheckView;

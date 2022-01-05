@@ -6,6 +6,7 @@ import PulseLoader from "react-spinners/PulseLoader";
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import { AiFillFolderOpen, AiOutlineCloudDownload } from 'react-icons/ai';
+import { IoIosClose } from 'react-icons/io';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 
@@ -89,6 +90,30 @@ const Buttons = styled.div`
     color: #ffffff;
   }
 `;
+const CloseButton = styled.button`
+  border: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  background: none;
+  height: 40px;
+  width: 40px;
+  outline: none;
+  -webkit-app-region: no-drag;
+  transition: ease .3s background;
+  border-radius: 5px;
+
+  svg {
+    width: 30px;
+    height: 30px;
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: #e74c3c;
+    transition: ease .5s background;
+  }
+`;
 
 const messages = [
   "Ah shit here we go again",
@@ -120,15 +145,25 @@ const SettingsBox: React.FC<WizzardProps> = ({
   const [gameDir, setGameDir] = useState("/");
   const [mpmDir, setMPMDir] = useState("/");
   const [mpmInstall, setMPMInstall] = useState(false);
+  const [folderChecked, setFolderChecked] = useState(false);
 
+  const check = () => {
+    window.api.send("ModController.checkFolder", {});
+  }
   useEffect(() => {
+    check();
+    window.api.receive("ModController.receiveCheckFolder", (check:boolean) => {
+      setFolderChecked(check);
+    });
     window.api.send("ModController.getFolder", {});
     window.api.receive("ModController.receiveFolder", (folder:any) => {
       setGameDir(folder);
+      check();
     });
     window.api.send("MPMController.getFolder", {});
     window.api.receive("MPMController.receiveFolder", (folder:any) => {
       setMPMDir(folder);
+      check();
     });
     window.api.receive("MPMController.receiveInstall", () => {
       setMPMInstall(false);
@@ -147,11 +182,18 @@ const SettingsBox: React.FC<WizzardProps> = ({
     setMPMInstall(true);
     window.api.send("MPMController.install", {});
   };
+  const AppQuit = () => {
+    window.api.send("App.quit", {});
+  };
 
   return <MessageContainer>
+    
+      <CloseButton onClick={AppQuit}>
+        <IoIosClose/>
+      </CloseButton>
       <RowVertical>
         <p>Para que tudo funciona corretamente, precisamos de algumas informações importantes.</p>
-        <p>Você possui o MPM (MixPackageManager) instalado? Caso sim, localize o diretório no campo abaixo. Se não tiver não se preocupe, nós resolvemos isso para você, só precisaremos de sua autorização.</p>
+        <p>Você possui o MPM (MixPackageManager) instalado? Caso sim, localize o diretório no campo abaixo. Se não tiver não se preocupe, nós resolvemos isso para você.</p>
         <p>Ah, e por último no outro campo localize o executável de seu Game. Vamos lá?</p>
       </RowVertical>
       <Row>
@@ -188,7 +230,7 @@ const SettingsBox: React.FC<WizzardProps> = ({
       </Buttons>
     </Row>
     <Row>
-      <Button  variant="contained" onClick={onSelect}>Iniciar</Button>
+      <Button disabled={!folderChecked} variant="contained" onClick={onSelect}>Iniciar</Button>
     </Row>
     </MessageContainer>
 }
@@ -208,7 +250,7 @@ const WizzardPage: React.FC<WizzardProps> = ({
     <ThemeProvider theme={theme}>
       <MainContainer>
         <SideContainer>
-          <Title>MixLauncher<span>v1.0.1a</span></Title>
+          <Title>MixLauncher<span>v1.0.2a</span></Title>
           {isLoading ? <LoadingBox/> : <SettingsBox onSelect={onSelect}/>}
         </SideContainer>
       </MainContainer>

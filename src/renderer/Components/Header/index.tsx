@@ -4,6 +4,8 @@ import headerImage from '../../../../assets/mixmods-header-1.jpg';
 import Title from '../Title';
 import Button from '@material-ui/core/Button';
 import { BsFillPlayFill } from 'react-icons/bs';
+import { IoMdClose } from 'react-icons/io';
+import { useState, useEffect } from 'react';
 
 const StyledTitle = styled(Title)`
   font-size: 60px;
@@ -57,20 +59,38 @@ const CloseButton = styled.button`
 `;
 
 const Header = () => {
+  const [running, setRunning] = useState(false);
+  useEffect(() => {
+    window.api.receive("GameController.onCloseGame", (code:any) => {
+      console.log(code);
+      setRunning(false);
+    });
+  }, []);
   const AppQuit = () => {
     window.api.send("App.quit", {});
   };
   const openGame = () => {
-    window.api.send("GameController.openGame", {});
+    if (running)
+    {
+      window.api.send("GameController.closeGame", {});
+    }
+    else
+    {
+      window.api.send("GameController.openGame", {});
+    }
+    setRunning(!running);
   };
   return <StyledHeader>
       <StyledTitle>
         MixLauncher
       </StyledTitle>
       <StyledButtons>
-        <Button onClick={openGame} color="success" variant="contained">
-          Iniciar
-          <BsFillPlayFill/>
+        <Button onClick={openGame} color={running?"error":"success"} variant="contained">
+          {running?
+          <>Fechar
+          <IoMdClose/></>
+          :<>Iniciar
+          <BsFillPlayFill/></>}
         </Button>
       </StyledButtons>
       <CloseButton onClick={AppQuit}>

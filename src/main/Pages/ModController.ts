@@ -8,8 +8,39 @@ const fs = require('fs');
 regedit.setExternalVBSLocation('resources/regedit/vbs');
 
 const ModController = () => {
-  let gameDir:string;
-  let mpmDir:string;
+  let gameDir:string="";
+  let mpmDir:string="";
+
+  const checkFolder = async (event:any,_: any) => {
+    await refreshPaths();
+    if (gameDir == "" || mpmDir == "")
+    {
+      event.sender.send("ModController.receiveCheckFolder", false);
+      return;
+    }
+    let gtaFound = fs.existsSync(gameDir + "\\gta_sa.exe") || fs.existsSync(gameDir + "\\gta_sa_compact.exe");
+    let mpmVersion = "";
+
+    if (!gtaFound)
+      dialog.showMessageBox({message: "Invalid game directory, please select the directory that has the 'gta_sa.exe' or 'gta_sa_compact.exe' executable", title:"Erro", type:"error"})
+       
+    const spawn = require("child_process").spawn;
+    const mpm = spawn(mpmDir,
+    ["v"],{
+      cwd: gameDir
+    });
+    mpm.stdout.on("data", (mpmData:string) => {
+      const res = mpmData.toString();
+      mpmVersion = res;
+    });
+
+    mpm.on("close", (_:number) => {
+      if (mpmVersion == "")
+        dialog.showMessageBox({message: "Invalid MixPackageManager (mpm.exe) executable", title:"Erro", type:"error"})
+       
+      event.sender.send("ModController.receiveCheckFolder", gtaFound && mpmVersion != "");
+    });
+  }
 
   const refreshPaths = async () => {
     await new Promise((resolve, reject) => {
@@ -35,8 +66,6 @@ const ModController = () => {
         if ("gtasa" in result[gtaKey].values)
         {
           gameDir = result[gtaKey].values["gtasa"].value;
-          if (!fs.existsSync(gameDir + "\\gta_sa.exe"))
-            dialog.showMessageBox({message: "Invalid game directory, please select the directory that has the 'gta_sa.exe' executable", title:"Erro", type:"error"})
         }
         resolve(gameDir);
       })
@@ -130,7 +159,9 @@ const ModController = () => {
       });
       event.sender.send("ModController.receiveModList", modsList);
       console.log("sendMods");
+      return;
     }
+    event.sender.send("ModController.receiveModList", []);
   }
   const openModFolder = async(_:any, data:any) => {
     await refreshPaths();
@@ -218,6 +249,7 @@ const ModController = () => {
   ipcMain.on("ModController.setFolder", setGameFolder);
   ipcMain.on("ModController.getMods", getMods);
   ipcMain.on("ModController.checkMod", checkMod);
+  ipcMain.on("ModController.checkFolder", checkFolder);
   ipcMain.on("ModController.openModFolder", openModFolder);
   ipcMain.on("ModController.reorderList", reorderList);
   ipcMain.on("ModController.setIgnore", modIgnore);
