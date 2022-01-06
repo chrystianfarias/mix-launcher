@@ -10,6 +10,7 @@ import IconButton from '@material-ui/core/IconButton';
 import { LoadingCategoryItem, CategoryItem, BasicItem } from './CategoryItem';
 import modIcon from '../../../../assets/icons/pencil.png';
 import newsIcon from '../../../../assets/icons/news.png';
+import profileIcon from '../../../../assets/icons/user.png';
 import inspectIcon from '../../../../assets/icons/loupe.png';
 
 
@@ -113,6 +114,9 @@ const Sidebar = () => {
     <Categories>
       <BasicItem image={newsIcon} page="main">
         Notícias
+      </BasicItem>
+      <BasicItem image={profileIcon} page="profiles">
+        Perfis
       </BasicItem>
       <BasicItem image={modIcon} page="mods">
         Mods instalados

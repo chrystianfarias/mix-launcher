@@ -8,6 +8,7 @@ import PageContext from '../../Context/PageContextProvider';
 import CategoryView from '../../Pages/CategoryView';
 import SettingsView from '../../Pages/SettingsView';
 import CheckView from '../../Pages/CheckView';
+import ProfilesView from '../../Pages/ProfilesView';
 
 const MainContainer = styled.div`
   background-color: #EBEBEB;
@@ -72,6 +73,8 @@ const MainPage = () => {
         return <ModsView/>;
       case "settings":
         return <SettingsView/>
+      case "profiles":
+        return <ProfilesView/>
       default:
         return <CategoryView category={state.arg}/>
     }
